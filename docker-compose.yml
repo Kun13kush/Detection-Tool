@@ -1,0 +1,61 @@
+volumes:
+  HNG-nginx-logs:
+  nextcloud-data:
+  detector-logs:
+
+services:
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: hng-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - HNG-nginx-logs:/var/log/nginx
+    depends_on:
+      - nextcloud
+    networks:
+      - hng-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/nginx-health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nextcloud:
+    image: kefaslungu/hng-nextcloud:latest
+    container_name: hng-nextcloud
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - nextcloud-data:/var/www/html
+      - HNG-nginx-logs:/var/log/nginx:ro
+    environment:
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+    networks:
+      - hng-net
+
+  detector:
+    build:
+      context: ./detector
+      dockerfile: Dockerfile
+    container_name: hng-detector
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - HNG-nginx-logs:/var/log/nginx:ro
+      - detector-logs:/var/log/detector
+      - ./detector/config.yaml:/app/config.yaml:ro
+    cap_add:
+      - NET_ADMIN
+    network_mode: host
+    depends_on:
+      - nginx
+
+networks:
+  hng-net:
+    driver: bridge
