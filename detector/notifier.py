@@ -9,7 +9,7 @@ Sends three types of alerts:
 All alerts include: condition, current rate, baseline, timestamp,
 and (for bans) the ban duration.
 """
-
+import os
 import json
 import logging
 import time
@@ -28,9 +28,11 @@ class SlackNotifier:
     """Sends Slack messages via an incoming-webhook URL."""
 
     def __init__(self, cfg: dict) -> None:
-        self._webhook: str = cfg["slack"]["webhook_url"]
+        self._webhook: str = (
+            os.environ.get("SLACK_WEBHOOK_URL")
+            or cfg["slack"]["webhook_url"]
+        )
         self._timeout: int = cfg["slack"]["timeout_seconds"]
-
     # ── Public alert methods ──────────────────────────────────────────────────
 
     def ban_alert(
