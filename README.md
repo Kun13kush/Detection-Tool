@@ -528,7 +528,7 @@ All detection thresholds live in `detector/config.yaml`. No values are hardcoded
 
 📖 **[How I Built a Real-Time Traffic Anomaly Detector for a Cloud Storage Platform](#)**
 
-Published on: [Hashnode / Dev.to / Medium link here]
+Published on: https://medium.com/@olakunle.kushehin/a-step-by-step-guide-to-building-a-real-time-http-anomaly-detector-using-python-deques-and-73ea6db405e9
 
 The post covers:
 - What this project does and why security monitoring matters
